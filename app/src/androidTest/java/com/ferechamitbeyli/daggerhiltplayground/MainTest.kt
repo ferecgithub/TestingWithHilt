@@ -1,6 +1,5 @@
  package com.ferechamitbeyli.daggerhiltplayground
 
-import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.test.core.app.launchActivity
 import com.ferechamitbeyli.daggerhiltplayground.di.AppModule
 import com.ferechamitbeyli.daggerhiltplayground.ui.MainActivity
@@ -11,8 +10,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.UninstallModules
 import dagger.hilt.components.SingletonComponent
+import dagger.hilt.testing.TestInstallIn
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.MatcherAssert.assertThat
@@ -23,7 +22,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @ExperimentalCoroutinesApi
-@UninstallModules(AppModule::class)
 @HiltAndroidTest
 class MainTest {
 
@@ -60,16 +58,23 @@ class MainTest {
         ) { }
     }
 
-    @Module
-    @InstallIn(SingletonComponent::class)
-    object TestAppModule {
-        @Singleton
-        @Provides
-        fun provideSomeString(): String {
-            return "It's some TESTING String!"
-        }
-    }
+}
 
+ /**
+  * With next @TestInstallIn annotation and by writing the object
+  * out of the class, we don't need to use @UninstallIn annotation
+  * anymore. It creates a fake class for us to do tests.
+  */
 
-
+@Module
+@TestInstallIn(
+    components = [SingletonComponent::class],
+    replaces = [AppModule::class]
+)
+object TestAppModule {
+ @Singleton
+ @Provides
+ fun provideSomeString(): String {
+     return "It's some TESTING String!"
+ }
 }
